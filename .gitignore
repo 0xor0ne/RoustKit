@@ -1,0 +1,12 @@
+TODOs
+*.o
+*.ko
+src/*.mod*
+src/.*.ko*
+src/.*.o*
+src/Module.symvers
+src/modules.order
+kernel/linux
+kernel/build
+kernel/archive/*.tar*
+
