@@ -9,4 +9,6 @@ src/modules.order
 kernel/linux
 kernel/build
 kernel/archive/*.tar*
+/rootfs/
+docker/rootfs/.ssh
 

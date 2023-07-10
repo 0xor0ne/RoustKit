@@ -24,5 +24,10 @@ ${ROOT_DIR}/docker/lkbuilder/build.sh
 print_new_phase_title "Building Linux kernel and Rust LKM inside lkbuilder Docker container"
 ${ROOT_DIR}/docker/lkbuilder/run.sh ${LKB_WORKDIR}/scripts/build_kernel_and_rust_lkm.sh
 
+print_new_phase_title "Building rootfs Docker image"
+${ROOT_DIR}/docker/rootfs/build.sh
+print_new_phase_title "Creating root filesystem"
+${ROOT_DIR}/docker/rootfs/create_rootfs.sh
+
 
 

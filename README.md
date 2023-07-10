@@ -3,6 +3,12 @@
 Docker containers for experimenting with out-of-tree Linux kernel modules
 written in Rust.
 
+# Dependencies
+
+TODO
+- docker (no root)
+- openssh
+
 # Quick Start
 
 For trying an automated setup, run:
@@ -31,7 +37,10 @@ Build kernel and Rust module
 Prepare root file system:
 
 ```
-TODO
+# Build Docker image (rootfs) for building the root filesystem
+./docker/rootfs/build.sh
+# Create the root filesystem
+./docker/rootfs/create_rootfs.sh
 ```
 
 Emulate and test the Rust module:
@@ -133,6 +142,40 @@ make
 
 
 ## Creating A Root File System
+
+Start by creating the Docker image that will be used to generate the root
+filesyste:
+
+```
+./docker/rootfs/build.sh
+```
+
+This will create a Docker image called `rootfs` and tagged as
+`<rust-<version>-bindgen-<version>`. You can see this by running:
+
+```
+$ docker image ls | grep rootfs
+rootfs       rust-1.62.0-bindgen-0.56.0   f98d5876eea9   13 minutes ago   644MB
+```
+
+At this point, it is possible to generate teh root filesystem by running:
+
+```
+./docker/rootfs/create_rootfs.sh
+```
+
+Internally the Docker image uses `debootstrap` for generating the root
+filesystem (this is handled by the script `./docker/rootfs/rootfs.sh`) which by
+default is placed in directory `rootfs` with name
+`<debian_distribution>-<arch>-<fs_type>`:
+
+```
+ls ./rootfs
+bullseye-x86_64-ext4
+```
+
+Also, by default there are two users in the automatically created filesystems:
+`root` with no password and `user` with password `user`.
 
 ## Emulation with QEMU
 
