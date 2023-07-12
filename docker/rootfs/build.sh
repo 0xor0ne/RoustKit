@@ -15,7 +15,7 @@ else
     echo "Using existing RSA key ${SCRIPT_DIR}/.ssh/id_rsa"
 fi
 
-echo "\nBuilding rootfs docker image for RUST from UBUNTU_VERSION=${RFS_UBUNTU_VERSION}"
+echo "\nBuilding rkrootfs docker image for RUST from UBUNTU_VERSION=${RFS_UBUNTU_VERSION}"
 
 set -x
 ${DOCKER_SUDO} docker build \

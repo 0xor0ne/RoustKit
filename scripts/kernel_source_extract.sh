@@ -6,8 +6,10 @@ ROOT_DIR="${SCRIPT_DIR}/.."
 source "${ROOT_DIR}/.env"
 
 if [ -d "${ROOT_DIR}/kernel/linux" ] ; then
-    echo "${ROOT_DIR}/kernel/linux already exists. Remove it before proceeding."
-    exit 1
+    if [ ! -z "$(ls -A ${ROOT_DIR}/kernel/linux)"] ; then
+        echo "${ROOT_DIR}/kernel/linux already exists and is not empty. Remove it before proceeding."
+        exit 1
+    fi
 else
     mkdir -p kernel/linux
 fi

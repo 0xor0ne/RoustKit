@@ -1,0 +1,8 @@
+host rkqemu
+    HostName 127.0.0.1 
+    user root
+    port 10021
+    IdentityFile ./docker/rootfs/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel QUIET

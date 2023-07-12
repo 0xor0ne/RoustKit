@@ -1,10 +1,10 @@
 ARG UBUNTU_VERSION
 ARG DOCKER_PLATFORM
-FROM ubuntu:${UBUNTU_VERSION} AS lkbuilder-base
+FROM ubuntu:${UBUNTU_VERSION} AS rkbuilder-base
 
 # Install required basic tools (+ compilers)
 RUN set -x && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get update && \
+    apt-get update && apt-get upgrade && \
     apt-get install -y -q apt-utils dialog && \
     apt-get install -y -q sudo curl aptitude flex bison \
         libncurses5-dev make git exuberant-ctags sparse bc libssl-dev libelf-dev \

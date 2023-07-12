@@ -9,14 +9,14 @@ echo "${SCRIPT_DIR}/rm_container.sh"
 ${SCRIPT_DIR}/rm_container.sh
 
 get_status() {
-    STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${LKB_RUN_NAME}" 2>&1`
+    STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${RKE_RUN_NAME}" 2>&1`
     echo "${STATUS}"
 }
 
 if [ "$(get_status)" = "running" ] ; then
-    echo "Something went wrong. Container ${LKB_RUN_NAME} is still running"
+    echo "Something went wrong. Container ${RKE_RUN_NAME} is still running"
     exit 1
 fi
 
 echo "Removing image"
-${DOCKER_SUDO} docker image rm ${LKB_TAG}
+${DOCKER_SUDO} docker image rm ${RKE_TAG}

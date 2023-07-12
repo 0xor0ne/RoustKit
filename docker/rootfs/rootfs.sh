@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Modified version of the syzkaller script:
 #   https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh
-set -eux
+set -ex
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 MNT=rootfs
 MNT_BASE=/rootfs
@@ -196,7 +198,8 @@ echo 'eval "$(dircolors ~/.dircolors)" > /dev/null' | tee -a $MNT/root/.bashrc >
 printf "+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\nWelcome to your roustkit session :).\n+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\n" | tee $MNT/etc/motd >/dev/null
 # yes | ssh-keygen -f "$ROOTFS_NAME.id_rsa" -t rsa -N '' >/dev/null
 sudo mkdir -p $MNT/root/.ssh/ >/dev/null
-cat "${WDIR}/.ssh/id_rsa.pub" | sudo tee $MNT/root/.ssh/authorized_keys >/dev/null
+cat "${SCRIPT_DIR}/.ssh/id_rsa.pub"
+cat "${SCRIPT_DIR}/.ssh/id_rsa.pub" | sudo tee $MNT/root/.ssh/authorized_keys >/dev/null
 
 echo "Building final disk image and cleaning up..."
 mkdir -p ${ROOTFS_DST_DIR}

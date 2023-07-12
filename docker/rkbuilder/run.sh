@@ -9,7 +9,7 @@ source "${ROOT_DIR}/.env"
 RUNNING=0
 EXITED=0
 CREATED=0
-STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${LKB_RUN_NAME}" 2>&1`
+STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${RKB_RUN_NAME}" 2>&1`
 
 if [ "$STATUS" = "running" ] ; then
     RUNNING=1
@@ -34,7 +34,7 @@ then
 fi
 
 echo "Interactive=${INTERACTIVE}"
-echo "Add. Opts=${LKB_DOCKER_RUN_ADD_OPT}"
+echo "Add. Opts=${RKB_DOCKER_RUN_ADD_OPT}"
 
 # Check if there are additional arguments
 CMDS="bash"
@@ -48,17 +48,17 @@ fi
 
 if [ "${EXITED}" -eq 1 ] ; then
     set -x
-    ${DOCKER_SUDO} docker start ${LKB_RUN_NAME}
+    ${DOCKER_SUDO} docker start ${RKB_RUN_NAME}
     set +x
 
     # If not running, remove the container
-    STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${LKB_RUN_NAME}" 2>&1`
+    STATUS=`${DOCKER_SUDO} docker container inspect -f '{{.State.Status}}' "${RKB_RUN_NAME}" 2>&1`
     if [ "$STATUS" = "running" ] ; then
         RUNNING=1
     else
         echo "Short living container, removing it"
         set -x
-        ${DOCKER_SUDO} docker rm ${LKB_RUN_NAME}
+        ${DOCKER_SUDO} docker rm ${RKB_RUN_NAME}
         set +x
         RUNNING=0
     fi
@@ -68,18 +68,18 @@ if [ "${RUNNING}" -eq 1 ] ; then
     set -x
     ${DOCKER_SUDO} docker exec \
         ${INTERACTIVE} \
-        ${LKB_RUN_NAME} ${CMDS}
+        ${RKB_RUN_NAME} ${CMDS}
     set +x
 else
     set -x
     ${DOCKER_SUDO} docker run \
         ${INTERACTIVE} \
-        ${LKB_DOCKER_RUN_ADD_OPT} \
-        -v "${ROOT_DIR}:${LKB_WORKDIR}" \
+        ${RKB_DOCKER_RUN_ADD_OPT} \
+        -v "${ROOT_DIR}:${RKB_WORKDIR}" \
         -v /tmp:/tmp \
-        -e WDIR="${LKB_WORKDIR}" \
-        --name ${LKB_RUN_NAME} \
-        ${LKB_TAG} ${CMDS}
+        -e WDIR="${RKB_WORKDIR}" \
+        --name ${RKB_RUN_NAME} \
+        ${RKB_TAG} ${CMDS}
     set +x
 fi
 

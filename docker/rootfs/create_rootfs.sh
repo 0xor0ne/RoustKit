@@ -6,7 +6,8 @@ ROOT_DIR="${SCRIPT_DIR}/../.."
 source "${ROOT_DIR}/.env"
 
 set -x
-${SCRIPT_DIR}/run.sh sudo ${RFS_WORKDIR}/docker/rootfs/rootfs.sh \
+${SCRIPT_DIR}/rm_container.sh
+${SCRIPT_DIR}/run.sh sudo -E ${RFS_WORKDIR}/docker/rootfs/rootfs.sh \
     -n "${RFS_NAME}" \
     -l "${RFS_DST_DIR}" \
     -a ${RFS_ARCH} \

@@ -46,15 +46,17 @@ set +x
 
 print_new_phase_title "Removing docker images"
 set -x
-${ROOT_DIR}/docker/lkbuilder/rm_container.sh
-${ROOT_DIR}/docker/lkbuilder/rm_image.sh
+${ROOT_DIR}/docker/rkbuilder/rm_container.sh
+${ROOT_DIR}/docker/rkbuilder/rm_image.sh
 ${ROOT_DIR}/docker/rootfs/rm_container.sh
 ${ROOT_DIR}/docker/rootfs/rm_image.sh
+${ROOT_DIR}/docker/qemu/rm_container.sh
+${ROOT_DIR}/docker/qemu/rm_image.sh
 set +x
 
 print_new_phase_title "Removing rootfs directory"
 set -x
-D=`find . -name "${RFS_NAME}" -exec dirname {} \;`
+D=`find ${ROOT_DIR} -name "${RFS_NAME}" -exec dirname {} \;`
 if [ "${D}" != "" ] ; then
     rm -r "${ROOT_DIR}/${D}"
 fi
