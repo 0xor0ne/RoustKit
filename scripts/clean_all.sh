@@ -14,7 +14,7 @@ print_new_phase_title() {
     echo "@@@@@ $1"
     echo "###################################################################################################"
     echo "###################################################################################################"
-    sleep 2
+    sleep 1
 }
 
 print_new_phase_title "Removing kernel source"
@@ -58,6 +58,6 @@ print_new_phase_title "Removing rootfs directory"
 set -x
 D=`find ${ROOT_DIR} -name "${RFS_NAME}" -exec dirname {} \;`
 if [ "${D}" != "" ] ; then
-    rm -r "${ROOT_DIR}/${D}"
+    rm -r "${D}"
 fi
 set +x

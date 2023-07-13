@@ -15,7 +15,7 @@ mkdir -p ${KBLD_D}
 cp ${KCFG_D}/default ${KBLD_D}/.config
 
 make O=${KBLD_D} LLVM=1 ARCH=x86_64 olddefconfig
-make O=${KBLD_D} LLVM=1 ARCH=x86_64 -j2 all
+make O=${KBLD_D} LLVM=1 ARCH=x86_64 -j${KERNEL_BUILD_JOBS} all
 set +x
 
 cd ${ROOT_DIR}

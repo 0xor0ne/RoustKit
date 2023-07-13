@@ -35,8 +35,8 @@ done
 echo "Background=${background}"
 
 set -x
+${SCRIPT_DIR}/rm_container.sh
 if [ ${background} -eq 0 ]; then
-    ${SCRIPT_DIR}/run.sh -n -d
     ${SCRIPT_DIR}/run.sh ${RKE_WORKDIR}/docker/qemu/emulate.sh
 else
     ${SCRIPT_DIR}/run.sh -n -d ${RKE_WORKDIR}/docker/qemu/emulate.sh

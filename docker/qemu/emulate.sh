@@ -30,10 +30,12 @@ popd
 qemupid=`pgrep qemu`
 if [ ! -z "${qemupid}" ] ; then
     kill -9 ${qemupid}
+    sleep 1
 fi
 
-if [ -f "${RKE_QEMU_PIDFILE}" ] ; then
+if [ -e "${RKE_QEMU_PIDFILE}" ] ; then
     rm ${RKE_QEMU_PIDFILE}
+    sleep 1
 fi
 
 qemu-system-${RKE_QEMU_ARCH} \
