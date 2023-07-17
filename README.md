@@ -1,35 +1,52 @@
 # RoustKit
 
-Framework for experimenting with **out-of-tree Linux kernel modules written in Rust**.
+Rust (out-of-tree) Linux kernel modules (LKMs) experimentation framework.
 
 > NOTE: this is still a work in progress and limited tests have been performed.
-> Please open an issue if you observe any error during commands execution.
+> Please report any error/problem observed by opening an Issue. Thank you.
 
 ## Features
 
-- Docker container with all the requirements for building Linux kernel and
-  Rust out-of-tree LKMs
-- Docker container for building a simple root filesystem (based on `debootstrap`)
-- Docker container for emulating the compiled Linux kernel and Rust LKM
+- Build Linux kernel and Rust out-of-tree LKMs
+- Create a test root filesystem (based on `debootstrap`)
+- Emulate the compiled Linux kernel and Rust LKMs
 
-## Usage Overview
+- Currently, by default, Linux kernel version 6.4.3 is used
 
-High level workflow:
+## Usage Workflow
 
 - Be sure to satisfy the [requirements](#prerequisites)
 
 - Setup the environment (docker images, Linux kernel source, etc):
-  - see [Quick Start](#quick-start) section, or
-  - [Usage](#usage) section for more details
+  - see [Quick Start](#quick-start) for automated setup, or
+  - [Usage](#usage) section for more details and manual setup
 
-- Once the setup is ready and the QEMU VM boots successfully, you can start
-  [using the Rust LKM](#interacting-with-rust-lkm-inside-the-qemu-vm)
+- Once the setup is complete (and the QEMU VM boots successfully), you can start
+  [experimenting with Rust
+  LKMs](#interacting-with-rust-lkm-inside-the-qemu-vm)
 
 ## Prerequisites
 
-TODO
-- docker (no root)
-- openssl
+NOTE: the framework has not been tested on Windows.
+
+- A case sensitive filesystem is required. This is (usually) not a problem on
+  Linux. However, MacOS by default uses a case insensitive filesystem. If you
+  are trying this in MacOS, create an APFS case sensitive volume and execute all
+  the commands from there. See
+  [here](https://karnsonline.com/case-sensitive-apfs/) for instructions on how
+  to create APFS case sensitive volumes.
+- `openssl` must be installed. This is used for creating the SSH keys for
+  logging into the QEMU VM.
+- Docker must be installed and configured for being executed without root
+  permissions. This is the default on MacOS. If you are using Linux see [Linux
+  post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
+
+When all the requirements are satisfied:
+
+```bash
+git clone git@github.com:0xor0ne/roustkit.git
+cd roustkit
+```
 
 ## Quick Start
 
@@ -39,17 +56,19 @@ Be sure to start from a clean environment:
 ./scripts/clean_all.sh
 ```
 
-For trying an automated setup, run (this is going to take a while to complete
-all the required steps):
+For trying an automated setup, run the following script (this is going to take a
+while to complete all the required steps):
 
 ```bash
 ./scripts/quick.sh
 ```
 
-If the script completed successfully, you can start [using the Rust
+If the script completed successfully, you can start [experimenting whit the Rust
 LKM](#interacting-with-rust-lkm-inside-the-qemu-vm). Otherwise, follow the steps
-reported in the section below (which is the list of commands executed
-autmatically by `./scripts/quick.sh`).
+reported in the section below.
+The section reports the list of commands executed automatically by
+`./scripts/quick.sh`. Executing them one by one by hands could help in
+identifying possible errors.
 
 ### Quick Start (Step by Step)
 
@@ -59,16 +78,17 @@ Be sure to start from a clean environment:
 ./scripts/clean_all.sh
 ```
 
-Build kernel and Rust module
+Build kernel and Rust module:
 
 ```bash
+# On the host:
 # Download and extract the kernel source
 ./scripts/kernel_source_download_and_extract.sh
 # Build the docker image (rkbuilder) for building the kernel and rust modules
 ./docker/rkbuilder/build.sh
 # Execute docker container rkbuilder in interactive mode
 ./docker/rkbuilder/run.sh
-# Command below from inside rkbuilder container
+# Inside rkbuilder container
 # Build kernel and rust module
 ./scripts/build_kernel_and_rust_lkm.sh
 # Built Rust LKM will be located in src directory
@@ -77,6 +97,7 @@ Build kernel and Rust module
 Prepare root file system:
 
 ```bash
+# On the host:
 # Build Docker image (rkrootfs) for building the root filesystem
 ./docker/rootfs/build.sh
 # Create the root filesystem
@@ -86,6 +107,7 @@ Prepare root file system:
 Emulate and test the Rust module:
 
 ```bash
+# On the host:
 # Build Docker image (rkqemu) for emulation
 ./docker/qemu/build.sh
 # Run qemu emulation rkqemu container
@@ -96,7 +118,7 @@ Emulate and test the Rust module:
 
 ## Interacting with Rust LKM inside the QEMU VM
 
-Once the setup is complete and the QEMU VM boot is completed, you should see an
+If the setup completed successfully you should have a running QEMU VM and see an
 output similar to the following:
 
 ```
@@ -114,7 +136,7 @@ Debian GNU/Linux 11 ROUSTKIT ttyS0
 ROUSTKIT login:
 ```
 
-from another terminal window/tab:
+Now, from another terminal window/tab:
 
 - Copy the compiled Rust Linux kernel module into the QEMU VM:
 
@@ -134,7 +156,7 @@ from another terminal window/tab:
 insmod /tmp/src/rust_oot.ko
 ```
 
-- you can verify that the module has been correctly loaded from the kernel log:
+- verify that the module has been correctly loaded:
 
 ```
 dmes | grep rust_oot
@@ -151,7 +173,7 @@ on the QEMU VM and loading it is the following:
 # - Develop the Rust LKM in src directory
 # - build it with
 ./docker/rkbuilder/run.sh scripts/rust_lkm_build.sh
-# - Transfer it on QEMU VM (assuming is already up and running, see above)
+# - Transfer it on QEMU VM (assuming it is already up and running, see above)
 ./scripts/scp_qemu.sh
 # Inside the QEMU VM (use ./scripts/ssh_qemu.sh if not already connected)
 rmmod rust_oot # Change this with the name of your module
@@ -162,7 +184,10 @@ For turning off QEMU VM see the [dedicated section](#turning-off-qemu-vm).
 
 ## Usage
 
-Be sure to start from a clean state:
+This section provides a little bit more details on the internal working of the
+framework.
+
+If you want to start from a clean state, run:
 
 ```bash
 ./scripts/clean_all.sh
@@ -187,8 +212,8 @@ Run the corresponding container in interactive mode with:
 
 > NOTE: the `run.sh` script mounts the root directory of this repository inside
 > the container in `$HOME/workspace` by default. The same directory is also set
-> as the default working directory and the environment variable $WDIR is set to
-> this directory.
+> as the default working directory and inside the container the environment
+> variable $WDIR is set to this directory.
 
 If you ever need to stop or remove the container or remove the `rkbulder` docker
 image for starting from scratch, you can use the following commands
@@ -210,10 +235,10 @@ Execute all the commands inside the `rkbuilder` container.
 ./docker/rkbuilder/run.sh
 ```
 
-A few notes: the instructions below assume that the linux kernel source code is
+NOTES: the instructions below assume that the linux kernel source code is
 placed in `kernel/linux` directory on the host (this directory is mounted in
-`$WDIR/kernel/linux` inside the container). Also, the insstructions
-uses the directory `kernel/build` (mounted in `$WDIR/kernel/build`
+`$WDIR/kernel/linux` inside the container). Also, the instructions
+use the directory `kernel/build` (mounted in `$WDIR/kernel/build`
 inside the container) as the output directory for the kernel build process.
 So, for example, for downloading and extracting the Linux kernel source code you
 can execute the following commands (from `$WDIR` inside the
@@ -236,7 +261,8 @@ The commands above can be automatize with:
 > `RUST_VERSION` and `BINDGEN_VERSION`. See section
 > [Configuration](#configuration) for the details.
 
-Once the Linux kernel source code has been extracted in `$WDIR/`
+Once the Linux kernel source code has been extracted, you can proceed to build
+it:
 
 ```bash
 cd $WDIR/kernel/linux
@@ -252,9 +278,18 @@ make O=${PWD}/../build LLVM=1 ARCH=x86_64 menuconfig
 # "Kernel hacking" -> "Sample kernel code" [y] -> "Rust samples" [y] -> enable [y] what you are interested in
 #
 # Exit the configuration menu and save the new configuration
-make O=${PWD}/../build LLVM=1 ARCH=x86_64 -j2 all
+make O=${PWD}/../build LLVM=1 ARCH=x86_64 -j4 all
 # Wait for the kernel to complete the build
 ```
+
+Instructions above can be automatize with:
+
+```bash
+${WDIR}/scripts/kernel_build.sh
+```
+
+In this case the configuration located in `kernel/configs/default` will be
+copied in `kernel/build/.config` and used for building the kernel.
 
 #### Rust Out-of-Tree Module
 
@@ -266,8 +301,16 @@ cd ${WDIR}/src
 make
 ```
 
+or, alternatively:
+
+```bash
+${WDIR}/scripts/rust_lkm_build.sh
+```
 
 ### Creating A Root File System
+
+The QEMU VM requires a basic root filesystem for emulating the linux kernel and
+the Rust LKM. This section describes how to create such root filesystem.
 
 Start by creating the Docker image that will be used to generate the root
 filesystem:
@@ -284,7 +327,7 @@ $ docker image ls | grep rkrootfs
 rkrootfs       rust-1.62.0-bindgen-0.56.0   f98d5876eea9   13 minutes ago   644MB
 ```
 
-At this point, it is possible to generate teh root filesystem by running:
+At this point, it is possible to generate the root filesystem by running:
 
 ```bash
 ./docker/rootfs/create_rootfs.sh
@@ -300,8 +343,18 @@ ls ./rootfs
 bullseye-x86_64-ext4
 ```
 
-Also, by default there are two users in the automatically created filesystems:
+Also, by default there are two users configured in the created filesystems:
 `root` with no password and `user` with password `user`.
+
+If you ever need to stop or remove the container or remove the `rkrootfs` docker
+image for starting from scratch, you can use the following commands
+rispectively:
+
+```bash
+./docker/rootfs/stop.sh
+./docker/rootfs/rm_container.sh
+./docker/rootfs/rm_image.sh
+```
 
 ### Emulation with QEMU
 
@@ -335,9 +388,19 @@ terminal window, you can log into the emulated instance using SSH:
 
 See [Networking](#networking) section for more details.
 
+If you ever need to stop or remove the container or remove the `rkqemu` docker
+image for starting from scratch, you can use the following commands
+rispectively:
+
+```bash
+./docker/qemu/stop.sh
+./docker/qemu/rm_container.sh
+./docker/qemu/rm_image.sh
+```
+
 #### Turning off QEMU VM
 
-From inside QEMU you can type `Ctrl-a` followed by `c` for entering the QEMO
+From inside QEMU you can type `Ctrl-a` followed by `c` for entering the QEMU
 console and then type `quit`.
 
 Otherwise, always from inside QEMU, you can poweroff the system with `poweroff`.
@@ -376,7 +439,7 @@ information).
 
 ### Networking
 
-The QEMU VM running inside the rkqemu Docker container can be reached from the
+The QEMU VM running inside the `rkqemu` Docker container can be reached from the
 host with:
 
 ```bash
@@ -390,7 +453,7 @@ ssh -F .ssh_config rkqemu
 ```
 
 In the same way, it is possible to copy stuff from the host into the QEMU VM
-suing:
+using:
 
 ```bash
 ./scripts/scp_qemu.sh -s path/to/src -d path/to/dst
@@ -402,8 +465,8 @@ under the hood, this become:
 scp -F .ssh_config -r path/to/src rkqemu:path/to/dst
 ```
 
-Note that once the QEMU VM is running you can attach to the rkqemu container and
-run the above commands directly from there (altough this is not usually
+Note that once the QEMU VM is running you can attach to the `rkqemu` container and
+run the above commands directly from there (although this is not usually
 necessary):
 
 ```bash
@@ -425,9 +488,15 @@ versions for different target architectures (and compilers).
 - [kernel-build-containers](https://github.com/a13xp0p0v/kernel-build-containers)
 - [like-dbg](https://github.com/0xricksanchez/like-dbg)
 
-This project holds a Rust out of tree Linux kernel module template:
+This project contains a Rust out-of-tree Linux kernel module template:
 
 - [rust-out-of-tree-module](https://github.com/Rust-for-Linux/rust-out-of-tree-module)
+
+## Contributions
+
+At the current time there is not a formal procedure for contributions.
+Limited tests have been performed so far and the framework is still in its early
+development stage. Please open an Issue for any problem/error observed.
 
 ## License
 
