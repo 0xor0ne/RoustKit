@@ -44,8 +44,8 @@ NOTE: the framework has not been tested on Windows.
 When all the requirements are satisfied:
 
 ```bash
-git clone git@github.com:0xor0ne/roustkit.git
-cd roustkit
+git clone git@github.com:0xor0ne/RoustKit.git
+cd RoustKit
 ```
 
 ## Quick Start
@@ -131,9 +131,9 @@ output similar to the following:
          Starting Hold until boot process finishes up...
          Starting Terminate Plymouth Boot Screen...
 
-Debian GNU/Linux 11 ROUSTKIT ttyS0
+Debian GNU/Linux 11 RoustKit ttyS0
 
-ROUSTKIT login:
+RoustKit login:
 ```
 
 Now, from another terminal window/tab:

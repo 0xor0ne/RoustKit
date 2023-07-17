@@ -14,6 +14,7 @@ ${SCRIPT_DIR}/run.sh sudo -E ${RFS_WORKDIR}/docker/rootfs/rootfs.sh \
     -d ${RFS_DISTRIBUTION} \
     -p "${RFS_PACKAGES}" \
     -u ${RFS_USER} \
+    -g ${RFS_USER} \
     -h "${RFS_HOSTNAME}" \
     -m "${RFS_MNT_BASE}"
 set +x

@@ -14,6 +14,7 @@ DIST=bullseye
 ROOTFS_DST_DIR="/rootfs"
 ROOTFS_NAME=rootfs
 USER=user
+GROUP=group
 HOSTNAME=""
 
 while (("$#")); do
@@ -53,6 +54,11 @@ while (("$#")); do
 		USER=$2
 		shift 2
 		;;
+	-g | --group)
+		# The non-root group
+		GROUP=$2
+		shift 2
+		;;
 	-m | --mount)
 		# The non-root user
 		MNT_BASE=$2
@@ -81,7 +87,7 @@ pushd ${MNT_BASE} >/dev/null || exit 255
 
 if [ ! "$HOSTNAME" ]; then
 	if [ ! "$ROOTFS_NAME" ]; then
-		HOSTNAME="ROUSTKIT"
+		HOSTNAME="RoustKit"
 	else
 		HOSTNAME="$ROOTFS_NAME"
 	fi
@@ -195,7 +201,7 @@ echo "export TERM=vt100" | tee -a $MNT/home/"$USER"/.bashrc >/dev/null
 echo "stty cols 128 rows 192" | tee -a $MNT/home/"$USER"/.bashrc >/dev/null
 cp $MNT/home/"$USER"/.bashrc $MNT/home/"$USER"/.dircolors $MNT/root >/dev/null
 echo 'eval "$(dircolors ~/.dircolors)" > /dev/null' | tee -a $MNT/root/.bashrc >/dev/null
-printf "+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\nWelcome to your roustkit session :).\n+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\n" | tee $MNT/etc/motd >/dev/null
+printf "+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\nWelcome to roustkit\n+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+\n" | tee $MNT/etc/motd >/dev/null
 # yes | ssh-keygen -f "$ROOTFS_NAME.id_rsa" -t rsa -N '' >/dev/null
 sudo mkdir -p $MNT/root/.ssh/ >/dev/null
 cat "${SCRIPT_DIR}/.ssh/id_rsa.pub"
@@ -210,4 +216,6 @@ sudo mount -o loop "${ROOTFS_DST_DIR}/$ROOTFS_NAME" /mnt/$MNT >/dev/null
 sudo cp -a $MNT/. /mnt/$MNT/. >/dev/null
 sudo umount /mnt/$MNT >/dev/null
 sudo rm -rf "$MNT" >/dev/null
+sudo chown -R ${USER}:${GROUP} "${ROOTFS_DST_DIR}"
+sudo chmod -R 0777 "${ROOTFS_DST_DIR}"
 find "${ROOTFS_DST_DIR}/$ROOTFS_NAME"* -print0 | xargs -0 chmod 0755 >/dev/null

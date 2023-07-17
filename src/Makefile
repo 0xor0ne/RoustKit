@@ -16,3 +16,4 @@ clean:
 	rm -f *.mod
 	rm -f *.mod.c
 	rm -f *.mod.o
+	rm -f .*.cmd
